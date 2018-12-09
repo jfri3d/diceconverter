@@ -2,7 +2,7 @@ import os
 
 import click
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 def build_mosaic(img, qr_dict, qr_size):
@@ -21,6 +21,7 @@ def build_mosaic(img, qr_dict, qr_size):
 
     # convert image to grayscale
     img = img.convert('L')
+    img = ImageOps.autocontrast(img)
 
     # image new output size
     out_size = (qr_size * img.size[0], qr_size * img.size[1])
@@ -35,7 +36,7 @@ def build_mosaic(img, qr_dict, qr_size):
     digitized = digitized.reshape(img.shape)
 
     # create new image object (grayscale)
-    out = Image.new('RGB', out_size)
+    out = Image.new('L', out_size)
 
     # insert die-pictures to represent pixels
     for x in range(0, out_size[1] - qr_size, qr_size):
@@ -48,11 +49,11 @@ def build_mosaic(img, qr_dict, qr_size):
 @click.command()
 @click.argument('image_file', type=click.Path(exists=True, dir_okay=False))
 @click.argument('qr_dir', type=click.Path(exists=True, dir_okay=True))
-@click.option('--qr_size', type=int, default=100,
+@click.option('--qr_size', type=int, default=300,
               help="size of each qr code within mosaic")
-@click.option('--im_rescale', type=float, default=0.05,
+@click.option('--im_rescale', type=float, default=0.1,
               help="factor for rescaling input image")
-def qr_mosaic(image_file, qr_dir, qr_size=200, im_rescale=1.0):
+def qr_mosaic(image_file, qr_dir, qr_size=100, im_rescale=1.0):
     """
     Function for building mosaic image from QR codes
 
@@ -85,7 +86,7 @@ def qr_mosaic(image_file, qr_dir, qr_size=200, im_rescale=1.0):
     # input path
     pather, namer = os.path.split(image_file)
     namer, file_ext = os.path.splitext(namer)
-    img.save(os.path.join(pather, "{}.png".format(namer)))
+    img.save(os.path.join(pather, "{}_mosaic.png".format(namer)))
 
 
 if __name__ == "__main__":
