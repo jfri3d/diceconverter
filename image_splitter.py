@@ -47,7 +47,7 @@ def image_splitter(image_file, out_dir, tx=25000, ty=25000):
         for j in range(0, ysize, ty):
             print(i, j)
             out_img = os.path.join(out_dir, namer)
-            src_str = "gdal_translate -of JPEG -srcwin {}, {}, {}, {} {} {}"
+            src_str = "gdal_translate -of JPEG -ot Byte -srcwin {}, {}, {}, {} {} {}"
             out_img = "{}_{}_{}.tif".format(out_img, i, j)
             fmt_str = src_str.format(i, j, tx, ty, image_file, out_img)
             os.system(fmt_str)
