@@ -16,13 +16,13 @@ def image_splitter(image_file, out_dir, tx=25000, ty=25000):
     Function for splitting an input raster into "chunks"
 
     Args:
-        image_file: input image
-        out_dir: directory for saving chunked image
+        image_file: input images
+        out_dir: directory for saving chunked images
         tx: size of chunks (in pixels)
         ty: size of chunks (in pixels)
 
     Returns:
-        chunked image based on tx, ty
+        chunked images based on tx, ty
 
     """
 
@@ -30,7 +30,7 @@ def image_splitter(image_file, out_dir, tx=25000, ty=25000):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
-    # load image
+    # load images
     ds = gdal.Open(image_file)
 
     # get size (for identifying number of "chunks" to create)
@@ -38,11 +38,11 @@ def image_splitter(image_file, out_dir, tx=25000, ty=25000):
     xsize = band.XSize
     ysize = band.YSize
 
-    # out image
+    # out images
     _, namer = os.path.split(image_file)
     namer, ext = os.path.splitext(namer)
 
-    # create "chunks" of image
+    # create "chunks" of images
     for i in range(0, xsize, tx):
         for j in range(0, ysize, ty):
             print(i, j)

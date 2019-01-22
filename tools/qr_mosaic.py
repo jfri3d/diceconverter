@@ -19,11 +19,11 @@ def build_mosaic(img, qr_dict, qr_size):
 
     """
 
-    # convert image to grayscale
+    # convert images to grayscale
     img = img.convert('L')
     img = ImageOps.autocontrast(img)
 
-    # image new output size
+    # images new output size
     out_size = (qr_size * img.size[0], qr_size * img.size[1])
 
     # cast to numpy.array for binning
@@ -35,7 +35,7 @@ def build_mosaic(img, qr_dict, qr_size):
     digitized = levels - np.digitize(img.flatten(), np.linspace(0, 257, levels))
     digitized = digitized.reshape(img.shape)
 
-    # create new image object (grayscale)
+    # create new images object (grayscale)
     out = Image.new('L', out_size)
 
     # insert die-pictures to represent pixels
@@ -49,29 +49,31 @@ def build_mosaic(img, qr_dict, qr_size):
 @click.command()
 @click.argument('image_file', type=click.Path(exists=True, dir_okay=False))
 @click.argument('qr_dir', type=click.Path(exists=True, dir_okay=True))
+@click.argument('out_file', type=click.Path(exists=False, dir_okay=False))
 @click.option('--qr_size', type=int, default=300,
               help="size of each qr code within mosaic")
 @click.option('--im_rescale', type=float, default=0.1,
-              help="factor for rescaling input image")
-def qr_mosaic(image_file, qr_dir, qr_size=100, im_rescale=1.0):
+              help="factor for rescaling input images")
+def qr_mosaic(image_file, qr_dir, out_file, qr_size=100, im_rescale=1.0):
     """
-    Function for building mosaic image from QR codes
+    Function for building mosaic images from QR codes
 
     Args:
-        image_file: input image
+        image_file: input images
         qr_dir: directory containing QR codes
+        out_file: output images
         qr_size: size of QR codes within mosaid
-        im_rescale: rescaling of image
+        im_rescale: rescaling of images
 
     Returns:
-        mosaic image based on <image_file>_mosaic.png
+        mosaic images based on <image_file>_mosaic.png
 
     """
 
-    # open image
+    # open images
     img = Image.open(image_file)
 
-    # resize image according to scaling factor provided
+    # resize images according to scaling factor provided
     scaled_img = (int(im_rescale * img.size[0]),
                   int(im_rescale * img.size[1]))
     img = img.resize(scaled_img)
@@ -80,13 +82,16 @@ def qr_mosaic(image_file, qr_dir, qr_size=100, im_rescale=1.0):
     qr_files = [os.path.join(qr_dir, q) for q in os.listdir(qr_dir) if q.endswith(".png")]
     qr_dict = {num+1: Image.open(q).resize((qr_size, qr_size)) for num, q in enumerate(qr_files)}
 
-    # build mosaic from input image
+    # build mosaic from input images
     img = build_mosaic(img, qr_dict, qr_size)
 
-    # input path
-    pather, namer = os.path.split(image_file)
-    namer, file_ext = os.path.splitext(namer)
-    img.save(os.path.join(pather, "{}_mosaic.png".format(namer)))
+    # directory housekeeping
+    out_path, _ = os.path.split(out_file)
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+
+    # save
+    img.save(out_file)
 
 
 if __name__ == "__main__":
